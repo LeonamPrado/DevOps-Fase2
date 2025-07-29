@@ -1,0 +1,44 @@
+# Nome do workflow
+name: Node.js CI
+
+# Gatilhos
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Tarefas (jobs)
+jobs:
+  build:
+    # Máquina virtual para rodar o job
+    runs-on: ubuntu-latest
+
+    # Estratégia para testar em múltiplas versões do Node.js (opcional, mas bom)
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    # 1. Checkout do código
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Setup do Ambiente Node.js
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm' # Habilita o cache para o npm, acelerando builds futuros
+
+    # 3. Instalação de Dependências
+    - name: Install dependencies
+      run: npm install
+
+    # 4. Análise Estática (Linting)
+    - name: Run linter
+      run: npm run lint
+
+    # 5. Testes Automatizados
+    - name: Run tests
+      run: npm test
